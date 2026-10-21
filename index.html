@@ -422,6 +422,32 @@ a:focus-visible{outline:3px solid #0D1E4C;outline-offset:3px}
 </div>
 </div>
 
+<!-- Photoshop skill showcase: add 2 images in images/photoshop/ -->
+<div class="photoshop-showcase">
+  <div class="photoshop-intro">
+    <span class="photoshop-eyebrow">ADOBE PHOTOSHOP · PRACTICAL WORK</span>
+    <h3>Photo editing samples</h3>
+    <p>Examples of my Photoshop work, including photo editing, image enhancement, and preparing images for certificate templates.</p>
+  </div>
+  <div class="photoshop-gallery" aria-label="Photoshop work examples">
+    <button type="button" class="photoshop-card" data-photoshop="images/photoshop/photoshop-1.jpg" data-title="Photo editing example 01" aria-label="View Photoshop work example 1">
+      <span class="photoshop-card-image">
+        <img class="photoshop-thumb" alt="Preview of Photoshop editing example 1" loading="lazy" hidden>
+        <span class="photoshop-placeholder" aria-hidden="true"><span class="photoshop-placeholder-icon">✦</span><span>PHOTO 01</span><small>Add your own image</small></span>
+      </span>
+      <span class="photoshop-card-caption"><span>Editing example 01</span><span aria-hidden="true">↗</span></span>
+    </button>
+    <button type="button" class="photoshop-card" data-photoshop="images/photoshop/photoshop-2.jpg" data-title="Photo editing example 02" aria-label="View Photoshop work example 2">
+      <span class="photoshop-card-image">
+        <img class="photoshop-thumb" alt="Preview of Photoshop editing example 2" loading="lazy" hidden>
+        <span class="photoshop-placeholder" aria-hidden="true"><span class="photoshop-placeholder-icon">✦</span><span>PHOTO 02</span><small>Add your own image</small></span>
+      </span>
+      <span class="photoshop-card-caption"><span>Editing example 02</span><span aria-hidden="true">↗</span></span>
+    </button>
+  </div>
+  <p class="photoshop-tip">Click a sample to view it at full size. Add your two images to <code>images/photoshop/</code>.</p>
+</div>
+
 <div style="display: flex; flex-wrap: wrap; gap: 12px 32px; padding: 20px 0; border-bottom: 1px solid #C48CB3">
 <div style="flex: 0 0 180px; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #26415E; padding-top: 6px">IT support</div>
 <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-wrap: wrap; gap: 8px">
@@ -683,6 +709,35 @@ a:focus-visible{outline:3px solid #0D1E4C;outline-offset:3px}
         <button type="button" class="certificate-step" id="certificateNext" aria-label="Next certificate"><span>Next</span> →</button>
       </div>
     </div>
+  </section>
+</div>
+
+<!-- Photoshop gallery lightbox; outside page filter so positioning stays fixed. -->
+<div class="photoshop-modal" id="photoshopModal" hidden>
+  <div class="photoshop-backdrop" data-close-photoshop></div>
+  <section class="photoshop-dialog" role="dialog" aria-modal="true" aria-labelledby="photoshopModalTitle" tabindex="-1">
+    <header class="photoshop-dialog-header">
+      <div><span class="photoshop-eyebrow">ADOBE PHOTOSHOP · WORK SAMPLE</span>
+      <h2 id="photoshopModalTitle">Photoshop example</h2></div>
+      <button class="photoshop-close" id="photoshopClose" type="button" aria-label="Close Photoshop preview">&times;</button>
+    </header>
+    <div class="photoshop-dialog-content">
+      <img id="photoshopLargeImage" class="photoshop-large-image" alt="" hidden>
+      <div id="photoshopMissing" class="photoshop-missing" hidden>
+        <span aria-hidden="true" class="photoshop-placeholder-icon">✦</span>
+        <h3>Your Photoshop image goes here</h3>
+        <p>Place the image inside your portfolio using this filename:</p>
+        <code id="photoshopMissingPath"></code>
+        <p>JPG, JPEG, PNG, and WebP formats are supported.</p>
+      </div>
+    </div>
+    <footer class="photoshop-dialog-footer">
+      <span id="photoshopCounter">01 / 02</span>
+      <div class="photoshop-controls">
+        <button class="photoshop-step" id="photoshopPrev" type="button">← Prev</button>
+        <button class="photoshop-step" id="photoshopNext" type="button">Next →</button>
+      </div>
+    </footer>
   </section>
 </div>
 

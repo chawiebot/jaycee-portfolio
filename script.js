@@ -60,6 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // The certificate popup lives outside the portfolio's inverted wrapper,
       // so synchronize its colors with the main page when the photo is clicked.
       document.getElementById("certificateModal")?.classList.toggle("theme-inverted", inverted);
+      document.getElementById("photoshopModal")?.classList.toggle("theme-inverted", inverted);
       photoButton.setAttribute("aria-pressed", String(inverted));
       photoButton.setAttribute("aria-label", inverted
         ? "Switch photo and restore the portfolio colors"
@@ -207,6 +208,129 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (!event.shiftKey && document.activeElement === last) {
         event.preventDefault();
         first.focus();
+      }
+    }
+  });
+
+
+  // Photoshop editing sample gallery. Keep image previews clean if missing.
+  const photoshopCards = Array.from(document.querySelectorAll('.photoshop-card'));
+  const photoshopModal = document.getElementById('photoshopModal');
+  const photoshopModalTitle = document.getElementById('photoshopModalTitle');
+  const photoshopLargeImage = document.getElementById('photoshopLargeImage');
+  const photoshopMissing = document.getElementById('photoshopMissing');
+  const photoshopMissingPath = document.getElementById('photoshopMissingPath');
+  const photoshopCounter = document.getElementById('photoshopCounter');
+  const photoshopClose = document.getElementById('photoshopClose');
+  const photoshopPrev = document.getElementById('photoshopPrev');
+  const photoshopNext = document.getElementById('photoshopNext');
+  let photoshopIndex = 0;
+  let photoshopReturnFocus = null;
+  let photoshopRequest = 0;
+  const photoshopResolved = Array(photoshopCards.length).fill(null);
+
+  function photoshopCandidates(preferred) {
+    const root = preferred.replace(/\.(jpg|jpeg|png|webp)$/i, '');
+    return ['.jpg', '.jpeg', '.png', '.webp'].map(ext => root + ext);
+  }
+
+  function loadPhotoshopImage(preferred, onSuccess, onMissing) {
+    const candidates = photoshopCandidates(preferred);
+    let candidate = 0;
+    function next() {
+      if (candidate >= candidates.length) { onMissing(); return; }
+      const path = candidates[candidate++];
+      const tester = new Image();
+      tester.onload = () => onSuccess(path);
+      tester.onerror = next;
+      tester.src = path;
+    }
+    next();
+  }
+
+  photoshopCards.forEach((card, index) => {
+    const thumb = card.querySelector('.photoshop-thumb');
+    const placeholder = card.querySelector('.photoshop-placeholder');
+    loadPhotoshopImage(card.dataset.photoshop, path => {
+      photoshopResolved[index] = path;
+      thumb.src = path;
+      thumb.hidden = false;
+      placeholder.hidden = true;
+    }, () => {
+      thumb.hidden = true;
+      placeholder.hidden = false;
+    });
+
+    card.addEventListener('click', () => {
+      if (!photoshopModal) return;
+      photoshopReturnFocus = document.activeElement;
+      photoshopModal.classList.toggle('theme-inverted', page?.classList.contains('theme-inverted'));
+      photoshopModal.hidden = false;
+      document.body.classList.add('photoshop-open');
+      showPhotoshop(index);
+      photoshopClose.focus();
+    });
+  });
+
+  function showPhotoshop(index) {
+    if (!photoshopCards.length || !photoshopModal) return;
+    photoshopIndex = (index + photoshopCards.length) % photoshopCards.length;
+    const card = photoshopCards[photoshopIndex];
+    const request = ++photoshopRequest;
+    photoshopModalTitle.textContent = card.dataset.title;
+    photoshopCounter.textContent = `${String(photoshopIndex + 1).padStart(2, '0')} / ${String(photoshopCards.length).padStart(2, '0')}`;
+    photoshopLargeImage.hidden = true;
+    photoshopLargeImage.removeAttribute('src');
+    photoshopMissing.hidden = true;
+    photoshopMissingPath.textContent = card.dataset.photoshop;
+    const showImage = path => {
+      if (request !== photoshopRequest) return;
+      photoshopResolved[photoshopIndex] = path;
+      photoshopLargeImage.src = path;
+      photoshopLargeImage.alt = card.dataset.title;
+      photoshopLargeImage.hidden = false;
+      photoshopMissing.hidden = true;
+    };
+    if (photoshopResolved[photoshopIndex]) {
+      showImage(photoshopResolved[photoshopIndex]);
+    } else {
+      loadPhotoshopImage(card.dataset.photoshop, showImage, () => {
+        if (request !== photoshopRequest) return;
+        photoshopMissing.hidden = false;
+      });
+    }
+  }
+
+  function closePhotoshop() {
+    if (!photoshopModal || photoshopModal.hidden) return;
+    ++photoshopRequest;
+    photoshopModal.hidden = true;
+    document.body.classList.remove('photoshop-open');
+    if (photoshopReturnFocus?.isConnected) photoshopReturnFocus.focus();
+  }
+
+  photoshopClose?.addEventListener('click', closePhotoshop);
+  photoshopModal?.querySelector('[data-close-photoshop]')?.addEventListener('click', closePhotoshop);
+  photoshopPrev?.addEventListener('click', () => showPhotoshop(photoshopIndex - 1));
+  photoshopNext?.addEventListener('click', () => showPhotoshop(photoshopIndex + 1));
+  document.addEventListener('keydown', event => {
+    if (!photoshopModal || photoshopModal.hidden) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closePhotoshop();
+    } else if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      showPhotoshop(photoshopIndex - 1);
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      showPhotoshop(photoshopIndex + 1);
+    } else if (event.key === 'Tab') {
+      const items = [photoshopClose, photoshopPrev, photoshopNext].filter(Boolean);
+      const first = items[0], last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault(); last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault(); first.focus();
       }
     }
   });
